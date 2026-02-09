@@ -1,0 +1,1 @@
+{"version":3,"file":"sendingEmails.d.ts","sourceRoot":"","sources":["../../src/lib/sendingEmails.ts"],"names":[],"mappings":"AAAA,OAAO,YAAY,MAAM,aAAa,CAAC;AAevC,eAAO,MAAM,SAAS,GAAU,8BAK7B;IACD,OAAO,EAAE,MAAM,CAAC;IAChB,IAAI,CAAC,EAAE,MAAM,CAAC;IACd,IAAI,EAAE,MAAM,CAAC;IACb,EAAE,EAAE,MAAM,CAAC;CACZ,kBAmBA,CAAC;AAEF,eAAO,MAAM,YAAY,mBAAqB,CAAC"}
