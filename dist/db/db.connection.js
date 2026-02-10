@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import 'dotenv/config';
+import "dotenv/config";
 export const sequelize = new Sequelize({
     database: process.env.DB_NAME,
     username: process.env.DB_USER,
@@ -14,7 +14,7 @@ export const connectToDatabase = async () => {
             console.log(`Connected to DB`);
         });
         // sync all models to db
-        sequelize.sync();
+        sequelize.sync({ alter: true });
     }
     catch (error) {
         console.log(`Failed to Connect to DB, ${error}`);

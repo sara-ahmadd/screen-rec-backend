@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Google Login Test (Frontend)</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; max-width: 900px; margin: 0 auto; }
+      .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+      input { padding: 10px 12px; width: min(520px, 100%); }
+      button { padding: 10px 12px; cursor: pointer; }
+      pre { background: #0b1020; color: #d6e2ff; padding: 14px; border-radius: 10px; overflow: auto; }
+      .hint { color: #555; font-size: 14px; line-height: 1.4; }
+      .card { border: 1px solid #e6e6e6; border-radius: 12px; padding: 14px; margin-top: 14px; }
+      .ok { color: #0a7a31; }
+      .bad { color: #b00020; }
+      code { background: #f5f5f5; padding: 2px 6px; border-radius: 6px; }
+    </style>
+  </head>
+
+  <body>
+    <h1>Google Login Test Page</h1>
+
+    <div class="card">
+      <div class="row">
+        <label for="apiBase"><strong>API Base URL</strong></label>
+        <input id="apiBase" placeholder="http://localhost:3000" />
+        <button id="saveBase">Save</button>
+      </div>
+      <p class="hint">
+        This page assumes your backend has these endpoints:
+        <code>GET /auth/google</code>, <code>GET /auth/me</code>, <code>POST /auth/logout</code>.
+        <br />
+        If you’re using <strong>httpOnly cookies</strong>, your backend must allow credentials (CORS) and this page will call
+        <code>fetch(..., { credentials: 'include' })</code>.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Actions</h2>
+      <div class="row">
+        <button id="btnGoogle">Continue with Google</button>
+        <button id="btnMe">GET /auth/me</button>
+        <button id="btnLogout">POST /auth/logout</button>
+        <button id="btnClear">Clear Output</button>
+      </div>
+      <p class="hint">
+        <strong>Continue with Google</strong> will do a full redirect to <code>/auth/google</code> (required for OAuth).
+        After you come back from Google, click <strong>GET /auth/me</strong> to confirm you’re logged in.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Status</h2>
+      <div id="status" class="hint">Not started.</div>
+      <h3>Output</h3>
+      <pre id="out">{}</pre>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      const out = $("out");
+      const statusEl = $("status");
+      const apiBaseInput = $("apiBase");
+
+      function setStatus(text, ok = true) {
+        statusEl.textContent = text;
+        statusEl.className = ok ? "hint ok" : "hint bad";
+      }
+
+      function logJson(obj) {
+        out.textContent = JSON.stringify(obj, null, 2);
+      }
+
+      function getApiBase() {
+        return (localStorage.getItem("apiBase") || "").trim() || "http://localhost:3000";
+      }
+
+      function setApiBase(v) {
+        localStorage.setItem("apiBase", v.trim());
+        apiBaseInput.value = getApiBase();
+      }
+
+      function joinUrl(base, path) {
+        const b = base.replace(/\/+$/, "");
+        const p = path.startsWith("/") ? path : "/" + path;
+        return b + p;
+      }
+
+      async function safeFetch(url, options = {}) {
+        const res = await fetch(url, {
+          ...options,
+          // Needed for cookie-based auth
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+          },
+        });
+
+        const ct = res.headers.get("content-type") || "";
+        let data;
+        try {
+          if (ct.includes("application/json")) data = await res.json();
+          else data = { text: await res.text() };
+        } catch (e) {
+          data = { error: "Failed to parse response body", details: String(e) };
+        }
+
+        if (!res.ok) {
+          const err = new Error("Request failed");
+          err.status = res.status;
+          err.data = data;
+          throw err;
+        }
+        return data;
+      }
+
+      // Init
+      apiBaseInput.value = getApiBase();
+
+      // If we got redirected back with ?token=... or ?code=..., show it (optional)
+      (function showQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        const code = params.get("code");
+        if (token || code) {
+          setStatus("Returned from OAuth redirect. Query params found (token/code).", true);
+          logJson({ returnedFromOAuth: true, token: token || null, code: code || null });
+        }
+      })();
+
+      $("saveBase").addEventListener("click", () => {
+        setApiBase(apiBaseInput.value);
+        setStatus("Saved API Base URL.", true);
+      });
+
+      $("btnGoogle").addEventListener("click", () => {
+        const base = getApiBase();
+        const url = joinUrl(base, "/auth/google");
+        setStatus("Redirecting to Google OAuth…", true);
+        // Full redirect is required for OAuth
+        window.location.href = url;
+      });
+
+      $("btnMe").addEventListener("click", async () => {
+        const base = getApiBase();
+        const url = joinUrl(base, "/auth/me");
+        setStatus("Calling GET /auth/me …", true);
+        try {
+          const data = await safeFetch(url, { method: "GET" });
+          setStatus("✅ /auth/me success (you are logged in).", true);
+          logJson({ endpoint: "/auth/me", ok: true, data });
+        } catch (e) {
+          setStatus(`❌ /auth/me failed (${e.status || "?"}).`, false);
+          logJson({ endpoint: "/auth/me", ok: false, status: e.status, data: e.data || null, error: String(e) });
+        }
+      });
+
+      $("btnLogout").addEventListener("click", async () => {
+        const base = getApiBase();
+        const url = joinUrl(base, "/auth/logout");
+        setStatus("Calling POST /auth/logout …", true);
+        try {
+          const data = await safeFetch(url, { method: "POST", body: JSON.stringify({}) });
+          setStatus("✅ Logged out.", true);
+          logJson({ endpoint: "/auth/logout", ok: true, data });
+        } catch (e) {
+          setStatus(`❌ /auth/logout failed (${e.status || "?"}).`, false);
+          logJson({ endpoint: "/auth/logout", ok: false, status: e.status, data: e.data || null, error: String(e) });
+        }
+      });
+
+      $("btnClear").addEventListener("click", () => {
+        out.textContent = "{}";
+        setStatus("Cleared output.", true);
+        // optional: remove token/code params from URL after testing
+        if (window.location.search) history.replaceState({}, document.title, window.location.pathname);
+      });
+    </script>
+  </body>
+</html>

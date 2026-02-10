@@ -3,3 +3,8 @@ export const Plans={
     paid:'paid'
 }
 export const sendEmailEvent = 'sendEmail'
+
+export const providers = {
+    local : 'local',
+    google: 'google'
+}

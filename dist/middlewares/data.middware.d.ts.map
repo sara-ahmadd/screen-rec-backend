@@ -1,0 +1,1 @@
+{"version":3,"file":"data.middware.d.ts","sourceRoot":"","sources":["../../src/middlewares/data.middware.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAC/D,OAAO,KAAK,EAAE,MAAM,EAAE,MAAM,KAAK,CAAC;AAElC,eAAO,MAAM,cAAc,GAAK,QAAO,MAAM,MAC5B,KAAI,OAAO,EAAE,KAAI,QAAQ,EAAE,MAAK,YAAY,kBAS5D,CAAA"}

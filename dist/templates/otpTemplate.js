@@ -1,11 +1,11 @@
-export const otpTemplate = (otp, appName, expiresInMinutes) => {
+export const otpTemplate = (otp, appName, expiresInMinutes, emailTitle) => {
     return `
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${appName} – Email Verification</title>
+    <title>${appName} – ${emailTitle}</title>
   </head>
   <body style="margin:0;padding:0;background-color:#f4f6fb;font-family:Arial,Helvetica,sans-serif;">
     <table width="100%" cellpadding="0" cellspacing="0">
@@ -17,7 +17,7 @@ export const otpTemplate = (otp, appName, expiresInMinutes) => {
             <tr>
               <td style="padding:24px 24px 12px;text-align:center;">
                 <h1 style="margin:0;font-size:22px;color:#1f2937;">
-                  Verify your email
+                 ${emailTitle}
                 </h1>
               </td>
             </tr>

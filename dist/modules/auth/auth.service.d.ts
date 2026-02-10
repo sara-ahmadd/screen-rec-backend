@@ -3,5 +3,12 @@ declare const register: (req: Request, res: Response) => Promise<Response<any, R
 declare const newOtp: (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>>>;
 declare const verfiyemail: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 declare const login: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
-export { register, verfiyemail, newOtp, login };
+declare const googleLogin: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+declare const forgotPassword: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+declare const resetPassword: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+declare const updatePassword: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+declare const logout: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+declare const refreshToken: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+declare const getProfile: (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>>>;
+export { register, verfiyemail, newOtp, login, googleLogin, forgotPassword, resetPassword, updatePassword, logout, refreshToken, getProfile, };
 //# sourceMappingURL=auth.service.d.ts.map
