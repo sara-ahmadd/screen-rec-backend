@@ -14,7 +14,7 @@ export const connectToDatabase = async () => {
             console.log(`Connected to DB`);
         });
         // sync all models to db
-        sequelize.sync({ alter: true });
+        sequelize.sync();
     }
     catch (error) {
         console.log(`Failed to Connect to DB, ${error}`);

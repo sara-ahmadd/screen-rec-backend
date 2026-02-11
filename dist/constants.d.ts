@@ -7,4 +7,5 @@ export declare const providers: {
     local: string;
     google: string;
 };
+export declare const acceptedImgExts: string[];
 //# sourceMappingURL=constants.d.ts.map

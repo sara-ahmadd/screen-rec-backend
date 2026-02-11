@@ -59,7 +59,7 @@
 
     <script>
       const $ = (id) => document.getElementById(id);
-
+const token = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRvc2V3eWRlQGRlbmlwbC5uZXQiLCJpZCI6NywiaWF0IjoxNzcwODMzMTkyLCJleHAiOjE3NzE0Mzc5OTJ9.x3tS7W_ZVBnYvUwZnt89IwF6Bj_tOr5awseSnmlzRgQ`;
       const out = $("out");
       const statusEl = $("status");
       const apiBaseInput = $("apiBase");
@@ -123,7 +123,7 @@
       // If we got redirected back with ?token=... or ?code=..., show it (optional)
       (function showQueryParams() {
         const params = new URLSearchParams(window.location.search);
-        const token = params.get("token");
+        
         const code = params.get("code");
         if (token || code) {
           setStatus("Returned from OAuth redirect. Query params found (token/code).", true);
@@ -149,7 +149,7 @@
         const url = joinUrl(base, "/auth/me");
         setStatus("Calling GET /auth/me …", true);
         try {
-          const data = await safeFetch(url, { method: "GET" });
+          const data = await safeFetch(url, { method: "GET", headers:{ authorization:token} });
           setStatus("✅ /auth/me success (you are logged in).", true);
           logJson({ endpoint: "/auth/me", ok: true, data });
         } catch (e) {
@@ -163,7 +163,7 @@
         const url = joinUrl(base, "/auth/logout");
         setStatus("Calling POST /auth/logout …", true);
         try {
-          const data = await safeFetch(url, { method: "POST", body: JSON.stringify({}) });
+          const data = await safeFetch(url, { method: "POST", body: JSON.stringify({}),authorization:token });
           setStatus("✅ Logged out.", true);
           logJson({ endpoint: "/auth/logout", ok: true, data });
         } catch (e) {

@@ -1,10 +1,13 @@
 import express from "express";
 import * as authServices from "./auth.service.js";
 import { validateSchema } from "../../middlewares/dataValidation.middware.js";
-import { emailVerificationValidation, forgotPasswordValidation, loginValidation, newOtpValidation, registerValidation, resetPasswordValidation, updatePasswordValidation, } from "./auth.validation.js";
+import { editProfileValidation, emailVerificationValidation, forgotPasswordValidation, loginValidation, newOtpValidation, registerValidation, resetPasswordValidation, updatePasswordValidation, } from "./auth.validation.js";
 import { asyncHandler } from "../../lib/asynchandler.js";
 import passport from "./../../google-auth/google.strategy.js";
 import { isAuthenticated } from "../../middlewares/authenticate.middware.js";
+import { uploadFile } from "../../services/formData-parser/multer.js";
+import { acceptedImgExts } from "../../constants.js";
+import { isValidFileType } from "../../middlewares/isValidMimType.js";
 const router = express.Router();
 // register
 router.post("/register", validateSchema(registerValidation), asyncHandler(authServices.register));
@@ -38,5 +41,14 @@ router.get("/logout", asyncHandler(isAuthenticated), asyncHandler(authServices.l
 router.get("/refresh-token", asyncHandler(isAuthenticated), asyncHandler(authServices.refreshToken));
 //get profile
 router.get("/me", asyncHandler(isAuthenticated), asyncHandler(authServices.getProfile));
+//update profile
+router.patch("/me", asyncHandler(isAuthenticated), await uploadFile({
+    maxSize: 2,
+    allowedMimtypes: acceptedImgExts,
+    filesCount: 1,
+    fieldName: "avatar",
+}), asyncHandler(isValidFileType(acceptedImgExts)), validateSchema(editProfileValidation), asyncHandler(authServices.updateProfile));
+//confirm email update
+router.patch("/update-email", asyncHandler(isAuthenticated), validateSchema(emailVerificationValidation), asyncHandler(authServices.updateEmail));
 export default router;
 //# sourceMappingURL=auth.controller.js.map

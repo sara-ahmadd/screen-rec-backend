@@ -171,5 +171,59 @@ const getProfile = async (req, res, next) => {
         .status(200)
         .json(successResponse("profile fetched successfully", { user }));
 };
-export { register, verfiyemail, newOtp, login, googleLogin, forgotPassword, resetPassword, updatePassword, logout, refreshToken, getProfile, };
+const updateProfile = async (req, res, next) => {
+    const u = req.user;
+    const { user_name, email } = req.body;
+    const user = await User.findByPk(u.id); //get user model to be able to update his data
+    //only if there is a file , update the avatars
+    const file = req.file;
+    if (file) {
+        const link = `${process.env.BASE_URL}/uploads/avatars/${file?.filename}`;
+        if (u.avatar_url !== link) {
+            user?.setDataValue("avatar_url", link);
+        }
+    }
+    if (user_name && user_name !== u.user_name) {
+        user?.setDataValue("user_name", user_name);
+    }
+    if (email && email !== u.email) {
+        const checkUser = await User.findOne({ where: { email } });
+        if (checkUser)
+            return next(new Error("User already exists", { cause: 400 }));
+        // send otp to new email
+        const otp = getOtp(email, 300);
+        emailEmitter.emit(sendEmailEvent, {
+            subject: "Verification email",
+            html: otpTemplate(otp, "ScreenRecorderApp", 5, "Email Verification"),
+            to: email,
+        });
+        console.log({ otp });
+    }
+    await user?.save();
+    return res
+        .status(200)
+        .json(successResponse(`profile updated successfully${email ? " check you inbox & use the otp sent to you to confirm updating your email" : "."}`));
+};
+const updateEmail = async (req, res, next) => {
+    const u = req.user;
+    const { email, otp } = req.body;
+    const user = await User.findOne({ where: { email: u.email } });
+    if (!user)
+        return next(new Error("User is not found", { cause: 400 }));
+    const cachedOtp = await getCache(`otp:${email}`);
+    if (!cachedOtp || otp !== cachedOtp) {
+        console.log({ otp });
+        console.log({ cachedOtp });
+        return next(new Error("invalid otp", { cause: 400 }));
+    }
+    user.setDataValue("email", email);
+    // update changePassword with current time
+    const currDate = new Date();
+    user.setDataValue("changeCreds", currDate);
+    await user.save();
+    return res
+        .status(200)
+        .json(successResponse(`your email is updated successfully from ${u.email} to ${email}`));
+};
+export { register, verfiyemail, newOtp, login, googleLogin, forgotPassword, resetPassword, updatePassword, logout, refreshToken, getProfile, updateProfile, updateEmail, };
 //# sourceMappingURL=auth.service.js.map

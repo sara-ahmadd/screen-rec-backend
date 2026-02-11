@@ -1,0 +1,1 @@
+{"version":3,"file":"isValidMimType.d.ts","sourceRoot":"","sources":["../../src/middlewares/isValidMimType.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAI5C,eAAO,MAAM,eAAe,GAAI,qBAAiB,MAE7C,KAAK,OAAO,GAAG;IAAE,IAAI,EAAE,OAAO,CAAC,MAAM,CAAC,IAAI,CAAA;CAAE,EAC5C,KAAK,QAAQ,EACb,MAAM,YAAY,kBAerB,CAAC"}
